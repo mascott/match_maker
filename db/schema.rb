@@ -13,8 +13,10 @@
 
 ActiveRecord::Schema.define(version: 20140701022558) do
 
-  create_table "parings", force: true do |t|
+  create_table "pairings", force: true do |t|
     t.integer  "period_id"
+    t.integer  "hosting_user_id"
+    t.integer  "visiting_user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
