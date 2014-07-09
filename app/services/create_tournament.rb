@@ -30,7 +30,7 @@ class CreateTournament
     @match_count ||= @participants.count / 2
   end
 
-  def matches_for_round(round, users)
+  def matches_for_round(round, participants)
     participants.unshift(@pivot)
     match_count.times.map{|i| [participants[i], participants[participants.count - i - 1]]}
   end
