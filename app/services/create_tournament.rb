@@ -8,31 +8,30 @@ class CreateTournament
   include Service
 
   def initialize(participants)
-    @participants = participants
-    @participant_count = participants.count
-    @indicies = @participants.count.times.map{|i| i }
-    @pivot = @indicies.shift
+    @participants = participants.to_a
+    @rounds = rounds
+    @match_count = match_count
+    @pivot = @participants.shift
   end
 
   def call
-    tournament = {}
-    rounds.times do |round|
-      tournament[round] = matches_for_round(round)
-      @indicies.rotate!(-1)
+    rounds.times.each_with_object({}) do |round, tournament|
+      tournament[round] = matches_for_round(round, @participants.rotate(-1 * round))
     end
-    tournament
   end
 
   private
 
   def rounds
-    @participant_count - 1
+    @rounds ||= @participants.count - 1
   end
 
-  def matches_for_round(round)
-    @indicies.unshift(@pivot)
-    matches = (@participant_count/2).times.map{|i| [@indicies[i], @indicies[@indicies.count - i - 1]]}
-    @indicies.shift
-    matches
+  def match_count
+    @match_count ||= @participants.count / 2
+  end
+
+  def matches_for_round(round, users)
+    participants.unshift(@pivot)
+    match_count.times.map{|i| [participants[i], participants[participants.count - i - 1]]}
   end
 end

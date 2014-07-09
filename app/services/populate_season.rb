@@ -3,42 +3,46 @@ class PopulateSeason
 
   def initialize(season)
     @season = season
+    # TODO: This needs to respect the appropriate tags
+    # or the appropriate set of users should be passed into the service.
+    @users ||= User.all.order(:first_name)
   end
 
   def call
-    users ||= User.all.order(:first_name)
-    periods = create_periods(period_count(users))
-    tournament = CreateTournament.call(users)
-    tournament.each_pair{|k, v| create_pairs(periods[k], users, v)}
+    populate_season_from_tournament(CreateTournament.call(@users))
     @season.save
     return @season
   end
 
   private
 
-  def period_count(users)
-    # TODO: This needs to be by group (male/female) and/or by tag
-    users.count - 1
-  end
-
-  def create_pairs(period, users, pairs)
-    pairs.each do |pair|
-      period.pairings.new(hosting_user: users[pair.first],
-                          visiting_user: users[pair.last])
+  def populate_season_from_tournament(tournament)
+    tournament.each_pair do |round, matches|
+      period = create_period(round)
+      create_pairs(period, matches)
     end
   end
 
-  def create_periods(period_count)
-    periods = []
-    period_count.times do |count|
-      periods << @season.periods.new(duration: @season.period_duration,
-                                    start_date: next_date(@season.start_date, count, @season.period_duration))
-    end
-    periods
+  def create_period(round)
+    @season.periods.new(duration: @season.period_duration,
+                        start_date: round_date(round))
   end
 
-  def next_date(start_date, count, period_duration)
-    start_date.to_date + (7 * count * period_duration)
+  def create_pairs(period, matches)
+    matches.each do |match|
+      period.pairings.new(hosting_user: match.first,
+                          visiting_user: match.last)
+    end
+  end
+
+  def round_date(round)
+    @season.start_date.to_date + round_offset(round)
+  end
+
+  # Returns the number of days to offset the date given the current round.
+  # Period duration is given in number of weeks.
+  def round_offset(round)
+    7 * @season.period_duration * round
   end
 
 end
