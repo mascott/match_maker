@@ -10,5 +10,30 @@
   <%= @season.period_duration %>
 </p>
 
-<%= link_to 'Edit', edit_season_path(@season) %> |
-<%= link_to 'Back', seasons_path %>
+<% @season.periods.each do |period| %>
+
+  <p>
+    <strong><%= period.start_date.strftime("%b %e") %></strong>
+  </p>
+  <table>
+    <thead>
+      <th></th>
+      <th></th>
+    </thead>
+    <tbody>
+      <% period.pairings.each do |pairing| %>
+        <tr>
+          <td><%= pairing.hosting_user.name %></td>
+          <td><%= pairing.visiting_user.name %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+<% end %>
+
+
+<p>
+  <%= link_to 'Edit', edit_season_path(@season) %> |
+  <%= link_to 'Back', seasons_path %>
+</p>
