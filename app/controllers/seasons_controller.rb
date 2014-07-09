@@ -25,10 +25,10 @@ class SeasonsController < ApplicationController
   # POST /seasons.json
   def create
     @season = Season.new(season_params)
-    @season.save
+    @season = PopulateSeason.call(@season)
 
     respond_to do |format|
-      if PopulateSeason.call(@season)
+      if @season.persisted?
         format.html { redirect_to @season, notice: 'Season was successfully created.' }
         format.json { render :show, status: :created, location: @season }
       else
