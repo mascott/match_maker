@@ -6,6 +6,7 @@ class User < ActiveRecord::Base
          :invitable
 
   belongs_to :organization
+  has_many :seasons
   has_many :parings
   has_many :periods, through: :pairing
 

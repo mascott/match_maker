@@ -5,7 +5,7 @@ class SeasonsController < ApplicationController
   # GET /seasons
   # GET /seasons.json
   def index
-    @seasons = Season.all
+    @seasons = Season.where(user_id: current_user.organization.users)
   end
 
   # GET /seasons/1
@@ -25,7 +25,7 @@ class SeasonsController < ApplicationController
   # POST /seasons
   # POST /seasons.json
   def create
-    @season = Season.new(season_params)
+    @season = Season.new(season_params.merge(user: current_user))
     @season = PopulateSeason.call(@season)
 
     respond_to do |format|
